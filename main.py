@@ -70,16 +70,20 @@ def analyze_tic_tac_toe(field, cur_x, cur_y):
 
 
 def minimax_X(X_win, O_win, x1, x2, x3, o1, o2, o3):
-    return 2000*X_win - 900*o1 + 20*x1 + 10*x2 - 10*o2 + 5*x3
+    return 10000*X_win - 3000*o1 + 20*x1 + 10*x2 - 10*o2 + 5*x3
 
 def minimax_O(X_win, O_win, x1, x2, x3, o1, o2, o3):
-    return 2000*O_win - 900*x1 + 20*o1 - 10*x2 + 10*o2 + 5*o3
+    return 10000*O_win - 3000*x1 + 20*o1 - 10*x2 + 10*o2 + 5*o3
 
 
-def print_field(field):
-    for row in field:
-        print(" ".join(f"{item:>4}" for item in row))  # Задаем ширину 4 для каждого
-
+def print_field(field, k, krest):
+    if k == 0:
+        for i, row in enumerate(field):
+            if krest[i//3][i%3] == '-':
+                print(" ".join(f"{item:>7}" for item in row), f'\t{i//3}-{i%3}', '\tСумма =', sum([int(item) for item in row if item != '-']))  # Задаем ширину 4 для каждого
+    else:
+        for row in field:
+            print(" ".join(f"{item:>4}" for item in row))  # Задаем ширину 4 для каждого
 
 def find_first_max_index_in_2d_list(matrix):
     max_value = -1e7
@@ -125,7 +129,7 @@ field = [
 
 
 count = sum(1 for element in chain.from_iterable(field) if element == "-")
-func_numbs = [[0 for i in range(count)] for j in range(count)]
+func_numbs = [['-' for i in range(count)] for i in range(count)]
 
 
 test_func_numbs = [[-1e5 for i in range(3)] for j in range(3)]
@@ -137,6 +141,8 @@ for i in range(9):
         print(f'Номер хода: {hod_count}. Крестики')
     else:
         print(f'Номер хода: {hod_count}. Нолики')
+
+    '''
 
     for i in range(3):
         for j in range(3):
@@ -155,21 +161,85 @@ for i in range(9):
                     field[i][j] = '-'
 
                 test_func_numbs[i][j] = cur_minimax
+                print(params)
             else:
                 test_func_numbs[i][j] = '-'
 
-
-
-    maximum, indices = find_first_max_index_in_2d_list(test_func_numbs)
+    '''
     if bool_X:
-        field[indices[0]][indices[1]] = 'X'
+        for i in range(3):
+            for j in range(3):
+                if field[i][j] == '-':
+                    x_minimax = 0
+                    field[i][j] = 'X'
+                    params_x = analyze_tic_tac_toe(field, i, j)
+                    x_minimax = minimax_X(**params_x)
+
+                    for i_o in range(3):
+                        for j_o in range(3):
+                            if field[i_o][j_o] == '-':
+                                o_minimax = 0
+                                field[i_o][j_o] = 'O'
+                                params_o = analyze_tic_tac_toe(field, i, j)
+                                o_minimax = minimax_O(**params_o)
+
+                                func_numbs[i*3 + j][i_o*3 + j_o] = x_minimax - o_minimax
+                                field[i_o][j_o] = '-'
+                    field[i][j] = '-'
     else:
-        field[indices[0]][indices[1]] = 'O'
+        for i in range(3):
+            for j in range(3):
+                if field[i][j] == '-':
+                    o_minimax = 0
+                    field[i][j] = 'O'
+                    params_o = analyze_tic_tac_toe(field, i, j)
+                    o_minimax = minimax_O(**params_o)
+
+                    for i_o in range(3):
+                        for j_o in range(3):
+                            if field[i_o][j_o] == '-':
+                                x_minimax = 0
+                                field[i_o][j_o] = 'X'
+                                params_x = analyze_tic_tac_toe(field, i, j)
+                                x_minimax = minimax_X(**params_x)
+
+                                func_numbs[i*3 + j][i_o*3 + j_o] = x_minimax - o_minimax
+                                field[i_o][j_o] = '-'
+                    field[i][j] = '-'
 
 
-    print_field(field)
+    print_field(func_numbs, 0, field)
+
+    if bool_X:
+        max_row = -1e6
+        max_row_index = -1
+
+        for i in range(len(func_numbs)):
+            cur_row = 0
+            for j in range(len(func_numbs)):
+                if func_numbs[i][j] != '-':
+                    cur_row += func_numbs[i][j]
+            if max_row < cur_row and field[i // 3][i % 3] == '-':
+                max_row = cur_row
+                max_row_index = i
+        field[max_row_index // 3][max_row_index % 3] = 'X'
+
+    else:
+        max_row = 1e6
+        max_row_index = -1
+
+        for i in range(len(func_numbs)):
+            cur_row = 0
+            for j in range(len(func_numbs)):
+                if func_numbs[i][j] != '-':
+                    cur_row += func_numbs[i][j]
+            if max_row > cur_row and field[i // 3][i % 3] == '-':
+                max_row = cur_row
+                max_row_index = i
+        field[max_row_index // 3][max_row_index % 3] = 'O'
+
     print('\n')
-    print_field(test_func_numbs)
+    print_field(field, 1, None)
     print('\n\n')
     hod_count += 1
     bool_X = not bool_X
