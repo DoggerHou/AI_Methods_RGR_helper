@@ -85,18 +85,6 @@ def print_field(field, k, krest):
         for row in field:
             print(" ".join(f"{item:>4}" for item in row))  # Задаем ширину 4 для каждого
 
-def find_first_max_index_in_2d_list(matrix):
-    max_value = -1e7
-    max_index = None  # Переменная для хранения индекса максимума
-
-    for i, row in enumerate(matrix):
-        for j, value in enumerate(row):
-            if value != '-' and value > max_value:
-                max_value = value
-                max_index = (i, j)  # Обновляем индекс максимума
-                # Если нужно, можно сразу выйти из функции, если требуется только первый максимум
-                # return max_value, max_index
-    return max_value, max_index  # Возвращаем максимум и его индекс
 
 
 # выигрышная комбинация для Х.
@@ -141,31 +129,6 @@ for i in range(9):
         print(f'Номер хода: {hod_count}. Крестики')
     else:
         print(f'Номер хода: {hod_count}. Нолики')
-
-    '''
-
-    for i in range(3):
-        for j in range(3):
-            if field[i][j] == '-':
-                cur_minimax = 0
-
-                if bool_X:
-                    field[i][j] = 'X'
-                    params = analyze_tic_tac_toe(field, i, j)
-                    cur_minimax = minimax_X(**params)
-                    field[i][j] = '-'
-                else:
-                    field[i][j] = 'O'
-                    params = analyze_tic_tac_toe(field, i, j)
-                    cur_minimax = minimax_O(**params)
-                    field[i][j] = '-'
-
-                test_func_numbs[i][j] = cur_minimax
-                print(params)
-            else:
-                test_func_numbs[i][j] = '-'
-
-    '''
     if bool_X:
         for i in range(3):
             for j in range(3):
